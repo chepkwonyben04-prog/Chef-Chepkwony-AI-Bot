@@ -1,5 +1,3 @@
-import os
-
 class ChefChepkwonyBot:
 
     def __init__(self):
@@ -13,32 +11,39 @@ class ChefChepkwonyBot:
             "data/recipes.txt"
         )
 
-    def load_file(self, path):
+    def load_file(self, file_path):
         try:
-            with open(path, "r", encoding="utf-8") as file:
+            with open(file_path, "r", encoding="utf-8") as file:
                 return file.read()
+
         except FileNotFoundError:
-            return ""
+            return "File not found."
 
     def chat(self, message):
-        response = f"""
-👨🏾‍🍳 {self.name}
 
-Message received:
-{message}
+        message = message.lower()
 
-I am trained with Chef Chepkwony's cooking knowledge.
-"""
-        return response
+        if "recipe" in message or "cook" in message:
+            return self.recipes[:500]
+
+        if "who are you" in message or "name" in message:
+            return self.personality
+
+        return (
+            "👨🏾‍🍳 I am Chef Chepkwony AI. "
+            "Ask me about recipes, cooking tips, or food knowledge."
+        )
 
     def run(self):
-        print(f"{self.name} is ready!")
+
+        print("👨🏾‍🍳 Chef Chepkwony AI is ready!")
 
         while True:
-            user_input = input("\nYou: ")
+            user = input("\nYou: ")
 
-            if user_input.lower() in ["exit", "quit"]:
-                print("Chef Chepkwony AI shutting down...")
+            if user.lower() == "exit":
+                print("Goodbye Chef!")
                 break
 
-            print(self.chat(user_input))
+            answer = self.chat(user)
+            print("\nBot:", answer)
