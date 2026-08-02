@@ -1,11 +1,24 @@
-import os
+from telegram import Update
+from telegram.ext import (
+    Application,
+    CommandHandler,
+    MessageHandler,
+    ContextTypes,
+    filters
+)
 
-from config import BOT_NAME, PERSONALITY_FILE, RECIPES_FILE
+from config import (
+    BOT_NAME,
+    PERSONALITY_FILE,
+    RECIPES_FILE,
+    TELEGRAM_TOKEN
+)
 
 
 class ChefChepkwonyBot:
 
     def __init__(self):
+
         self.name = "BC's AI"
 
         self.personality = self.load_file(
@@ -20,10 +33,16 @@ class ChefChepkwonyBot:
     def load_file(self, file_path):
 
         try:
-            with open(file_path, "r", encoding="utf-8") as file:
+            with open(
+                file_path,
+                "r",
+                encoding="utf-8"
+            ) as file:
+
                 return file.read()
 
         except FileNotFoundError:
+
             return "File not found."
 
 
@@ -49,7 +68,7 @@ class ChefChepkwonyBot:
 
             return (
                 "👋 Welcome to BC's AI!\n\n"
-                "I am your culinary assistant by Chef Chepkwony. "
+                "I am the official culinary assistant by Chef Chepkwony.\n\n"
                 "Ask me about Kenyan cuisines, African cuisines, "
                 "International cuisines, recipes, and cooking tips."
             )
@@ -62,23 +81,32 @@ class ChefChepkwonyBot:
         )
 
 
-    def run(self):
+    async def start(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE
+    ):
 
-        print("🤖 BC's AI is ready!")
-
-        while True:
-
-            user = input("\nYou: ")
-
-            if user.lower() == "exit":
-
-                print("Goodbye Chef! 👨🏾‍🍳")
-                break
+        await update.message.reply_text(
+            "👋 Welcome to BC's AI!\n\n"
+            "I am the official culinary assistant by Chef Chepkwony.\n\n"
+            "Ask me about recipes, cooking tips, "
+            "Kenyan cuisines, African cuisines, "
+            "and global cuisines."
+        )
 
 
-            answer = self.chat(user)
+    async def message_handler(
+        self,
+        update: Update,
+        context: ContextTypes.DEFAULT_TYPE
+    ):
 
-            print("\nBC's AI:", answer)
+        user_message = update.message.text
+
+        answer = self.chat(user_message)
+
+        await update.message.reply_text(answer)
 
 
 
@@ -86,4 +114,29 @@ if __name__ == "__main__":
 
     bot = ChefChepkwonyBot()
 
-    bot.run()
+
+    app = Application.builder().token(
+        TELEGRAM_TOKEN
+    ).build()
+
+
+    app.add_handler(
+        CommandHandler(
+            "start",
+            bot.start
+        )
+    )
+
+
+    app.add_handler(
+        MessageHandler(
+            filters.TEXT & ~filters.COMMAND,
+            bot.message_handler
+        )
+    )
+
+
+    print("🤖 BC's AI Telegram Bot is running...")
+
+
+    app.run_polling()
