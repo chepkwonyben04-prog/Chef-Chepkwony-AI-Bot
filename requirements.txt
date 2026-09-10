@@ -1,2 +1,5 @@
 python-dotenv
 python-telegram-bot
+Flask
+requests
+gunicorn
